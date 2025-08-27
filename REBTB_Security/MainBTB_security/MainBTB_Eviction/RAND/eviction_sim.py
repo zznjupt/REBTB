@@ -1,0 +1,80 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import deque
+
+def simulate_eviction(i=10, t=5, w=12, x_start=0, x_end=30000, x_step=2000,
+                      num_experiments=1000, num_samples=50000, save_pdf='Target_Eviction.pdf'):
+    """
+    Simulate and plot the eviction CDF for given parameters.
+    Defaults: i=10, t=5, w=12
+    """
+    p = 1/(2**i)
+    space_size = 2**i
+    tag_space = 2**t
+
+    # X-axis for theoretical CDF
+    N_values = np.arange(x_start, x_end + 1, x_step)
+    N_theory = np.arange(x_start, x_end + 1, 10)  # smaller step for smooth curve
+
+    # --- Theoretical CDF ---
+
+    p_b = 1 / (2**i)  
+    q = p_b * (2**t - w) / (2**t) / w   
+    cdf_theory = [1 - (1 - q)**n for n in N_theory]
+
+    # --- Simulated experiments ---
+    trials = []
+    for _ in range(num_experiments):
+        target = np.random.randint(0, space_size)      # Random target
+        target_way = np.random.randint(0, w)           # Target's fixed position in bucket
+        
+        # labels_in_bucket = list(np.random.choice(range(tag_space), size=w, replace=False))
+        labels_in_bucket = set()
+        while len(labels_in_bucket) < w:
+            new_pair = (np.random.randint(0, tag_space), np.random.randint(0, 2**5))
+            labels_in_bucket.add(new_pair)
+        labels_in_bucket = list(labels_in_bucket)
+        total_trials = 0
+        while True:
+            total_trials += 1
+            guess = np.random.randint(0, space_size)
+            guess_tag = np.random.randint(0, tag_space)
+            guess_offset = np.random.randint(0, 2**5)
+            if guess == target:
+                existing_same_tag = [off for t, off in labels_in_bucket if t == guess_tag]
+                if not existing_same_tag or all(off < guess_offset for off in existing_same_tag):
+                    # Randomly choose a position to replace
+                    evict_idx = np.random.randint(w)
+                    labels_in_bucket.append((guess_tag, guess_offset))
+                    # Check if the replaced position is the target's position
+                    if evict_idx == target_way:
+                        break
+        trials.append(total_trials)
+
+    xx_ticks = np.arange(x_start, x_end + 1, 100)
+    cdf_sim_ticks = [np.mean(trials <= ki) for ki in xx_ticks]
+
+    x_labels = [f"{N//1000}k" for N in N_values]
+
+    # --- Plot ---
+    plt.figure(figsize=(12,6))
+    plt.plot(N_theory, cdf_theory, color='blue', linewidth=2, label='Theoretical CDF')
+    plt.scatter(xx_ticks, cdf_sim_ticks, color='red', s=80, marker='*', label='Simulated CDF')
+    plt.xlabel("Number of Branch Executions (N)", fontsize=16)
+    plt.ylabel("Probability of the Target is Evicted", fontsize=16)
+    plt.title(f"{i}-bit index, {t}-bit tag, {w}-way", fontsize=18)
+    plt.xlim(x_start, x_end)
+    plt.ylim(0,1)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.xticks(N_values, x_labels, rotation=45, fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.legend(fontsize=14)
+    plt.savefig(save_pdf, format='pdf', bbox_inches='tight')
+    plt.close()
+
+    return N_values, N_theory, cdf_theory, xx_ticks, cdf_sim_ticks
+
+
+# --- Run with default parameters if script is executed directly ---
+if __name__ == "__main__":
+    simulate_eviction()
