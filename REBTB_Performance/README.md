@@ -1,5 +1,8 @@
 # gem5-based REBTB performance evaluation simulator
 
+* Baseline: `./Baseline/gem5`
+* REBTB: `./REBTB/gem5`
+
 * The randomization threshold can be modified here: `REBTB/REBTB_Performance/gem5/src/cpu/pred/bpred_unit.hh`
 // [Thresholds for different P values]
 * Execution method: 
