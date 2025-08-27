@@ -12,7 +12,7 @@ compare_files = [
     "./ipc_data/rekey2.txt"
 ]
 compare_labels = [
-    "Randomazition without Rekeyiing",
+    "Randomazition without Rekeying",
     "P = 0.5, TH_MainBTB = 230000, TH_IBP = 230000",
     "P = 0.2, TH_MainBTB = 230000, TH_IBP = 230000",  
     "P = 0.5, TH_MainBTB = 16500, TH_IBP = 2900", 

@@ -116,7 +116,7 @@ def plot_multi_target_eviction(i=10, t=5, w=12, x_start=0, x_end=30000, x_step=2
                     marker=marker, alpha=0.7,
                     label=f"LRU, {i}-bit index, {t}-bit tag, {w}-way, {num_targets}-target(s) sim.")
 
-    x_labels = [f"{N//1000}k" for N in N_values]
+    x_labels = [f"{N//500}k" for N in N_values]
     plt.xlabel("# of Trials", fontsize=20)
     plt.ylabel("Probability of the Target is Evicted", fontsize=20)
     plt.xlim(x_start, x_end)
